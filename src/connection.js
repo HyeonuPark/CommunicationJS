@@ -85,10 +85,10 @@ export class Connection extends Event {
     this._remoteConnections = Imm.Map()
 
     this.on('running', () => {
-      delegate.run(this)
+      //delegate.run(this)
     })
 
-    const remote = this._remote = Operator(::this._send)
+    const remote = this._remote = new Operator(::this._send)
 
     remote.on('init', ({message, send, done}) => {
       this[STATE] = 'running'
@@ -103,7 +103,7 @@ export class Connection extends Event {
       conn.on('stream', stream => {
         this.emit('streamAdded', stream, id, meta)
       })
-      this._registerConn(id, conn)
+      this._registerRemoteConn(id, conn)
       done()
     })
 
@@ -153,8 +153,6 @@ export class Connection extends Event {
       this._localConnections = Imm.Map()
       this._remoteConnections = Imm.Map()
     })
-
-    remote.send('init')
   }
 
   /**
@@ -167,6 +165,13 @@ export class Connection extends Event {
   }
 
   /**
+   * open the connection
+   */
+  open () {
+    this._remote.send('init')
+  }
+
+  /**
    * call it when signalling channel got new message to connection
    * remote connection's 'message' event should be passed to this method
    * @param  {String} msg
@@ -175,24 +180,24 @@ export class Connection extends Event {
    */
   //@bound
   //@delegate
-  write (msg) {
+  write (message) {
     if (this.state() === 'closed') return
 
-    if (msg.startsWith('L')) {
-      const id = msg.substr(MSG_TYPE_LEN, STREAM_ID_LEN)
+    if (message.startsWith('L')) {
+      const id = message.substr(MSG_TYPE_LEN, STREAM_ID_LEN)
       const connImpl = this._localConnections.get(id)
       if (!connImpl) return
-      connImpl.write(msg.slice(MSG_TYPE_LEN + STREAM_ID_LEN))
+      connImpl.write(message.slice(MSG_TYPE_LEN + STREAM_ID_LEN))
 
-    } else if (msg.startsWith('R')) {
-      const id = msg.substr(MSG_TYPE_LEN, STREAM_ID_LEN)
+    } else if (message.startsWith('R')) {
+      const id = message.substr(MSG_TYPE_LEN, STREAM_ID_LEN)
       const connImpl = this._remoteConnections.get(id)
       if (!connImpl) return
-      connImpl.write(msg.slice(MSG_TYPE_LEN + STREAM_ID_LEN))
+      connImpl.write(message.slice(MSG_TYPE_LEN + STREAM_ID_LEN))
 
-    } else if (msg.startsWith('G')) {
+    } else if (message.startsWith('G')) {
       try {
-        const {ctx, msg, tpc} = JSON.parse(msg.slice(1))
+        const {ctx, msg, tpc} = JSON.parse(message.slice(1))
         this._remote.accept(ctx, msg, tpc)
       } catch (e) {
         console.error('CONNECTION ERROR -', e, e.stack)
@@ -214,7 +219,7 @@ export class Connection extends Event {
   addStream (stream, meta) {
     this._remote.send('streamAdded', {id: stream.id, meta})
       .then(({message, send, done}) => {
-        this._getLocalConn(stream)
+        this._getLocalConn(stream).open()
       })
   }
 
@@ -304,8 +309,7 @@ export class Connection extends Event {
     try {
       const type = conn.isSender() ? 'R' : 'L'
       const id = conn.getId()
-      const message = JSON.stringify(msg)
-      this.emit('message', type + id + message)
+      this.emit('message', type + id + msg)
     } catch (e) {
       console.error('CONNECTION ERROR -', e, e.stack)
     }

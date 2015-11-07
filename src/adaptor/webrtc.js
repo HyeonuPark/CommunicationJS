@@ -20,7 +20,7 @@ function setupPeer (peer, channel) {
     if (!evt.candidate) return
     channel.emit('message', JSON.stringify({ice: evt.candidate}))
   }
-  
+
   peer.oniceconnectionstatechange = () => {
     switch (peer.iceConnectionState) {
       case 'disconnected':
@@ -63,11 +63,13 @@ export function connect (stream, _config) {
   channel.getStream = () => stream
   channel.getId = () => stream.id
 
-  peer.createOffer(offer => {
-    peer.setLocalDescription(offer, () => {
-      channel.emit('message', JSON.stringify({sdp: offer}))
+  channel.open = () => {
+    peer.createOffer(offer => {
+      peer.setLocalDescription(offer, () => {
+        channel.emit('message', JSON.stringify({sdp: offer}))
+      }, ::console.error)
     }, ::console.error)
-  }, ::console.error)
+  }
 
   return channel
 }

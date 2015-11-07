@@ -16,6 +16,12 @@ class ConnectionImpl {
   write (msg)
 
   /**
+   * only for sender
+   * start connecting
+   */
+  open ()
+
+  /**
    * check whether this ConnectionImpl is sender or receiver
    * @return {Boolean} true if sender
    */

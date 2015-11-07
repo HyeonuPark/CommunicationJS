@@ -18,53 +18,51 @@ export class Operator extends Event {
   //@bound
   accept (context, message, topic) {
     if (typeof topic === 'string') {
-      const listener = this._topicMap.get(topic)
-      if (!listener) return
-      listener({
+      const topicListener = this._topicMap.get(topic)
+      if (!topicListener) return
+      return topicListener({
         message,
-        send (msg2send) {
-          this._send(context, message)
-          return this._wait(context)
+        send: msg2send => {
+          return this._sendAndWait(context, msg2send)
         },
-        done (msg2send) {
-          this._send(context, message)
+        done: msg2send => {
+          this._send(context, msg2send)
         }
       })
     }
     const listener = this._contextMap.get(context)
     if (!listener) return
-    this._contextMap.delete(context)
+    this._contextMap = this._contextMap.delete(context)
     listener(message)
   }
 
   //@bound
   on (topic, listener) {
     if (typeof topic !== 'string' || typeof listener !== 'function') return
-    this._topicMap.set(topic, listener)
+    this._topicMap = this._topicMap.set(topic, listener)
   }
 
   //@bound
   send (topic, message) {
     const context = uuid()
-    this._send(context, message, topic)
-    return this._wait(context)
+    return this._sendAndWait(context, message, topic)
   }
 
   //@bound
-  _wait (context) {
+  _sendAndWait (context, message, topic) {
     return new Promise(resolve => {
       this._contextMap = this._contextMap.set(context, income => {
         resolve({
           message: income,
-          send (msg2send) {
-            this._send(context, msg2send)
-            return wait(context)
+          send: msg2send => {
+            return this._sendAndWait(context, msg2send)
           },
-          done (msg2send) {
+          done: msg2send => {
             this._send(context, msg2send)
           }
         })
       })
+      this._send(context, message, topic)
     })
   }
 }

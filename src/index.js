@@ -1,3 +1,5 @@
 import {Connection} from './connection.js'
 
-export default getConnection = config => new Connection(config)
+export default function getConnection (config) {
+  return new Connection(config)
+}

@@ -1,4 +1,6 @@
-**
-!src
-!LICENSE
-!package.json
+node_modules
+src
+tmp
+.gitignore
+.npmignore
+gulpfile.babel.js
