@@ -67,17 +67,17 @@ will return one of following values
 - 'running': Communication is established and usable
 - 'closed': Communication is closed
 
-## open(): void
+## open(): Communication
 
 Start establishing connection
 
 This method MUST be called AFTER message handling, BEFORE any other operation
 
-## write(message: String): void
+## write(message: String): Communication
 
 Receive message from signalling channel
 
-## addStream(stream: MediaStream, meta: Object): void
+## addStream(stream: MediaStream, meta: Object): Communication
 
 Add local MediaStream to the Communication
 
@@ -85,25 +85,25 @@ Metadata object will be sent to the remote Communication object
 
 See streamAdded event
 
-## removeStream(stream: MediaStream|String)
+## removeStream(stream: MediaStream|String): Communication
 
 Remove local MediaStream from the Communication
 
-## getLocalStreams()
+## getLocalStreams(): Array<MediaStream>
 
 Return an array of MediaStreams that Communication streaming to remote peer
 
-## getRemoteStreams()
+## getRemoteStreams(): Array<MediaStream>
 
 Return an array of MediaStreams that Communication streaming from remote peer
 
-## getStreamById(id: String)
+## getStreamById(id: String): MediaStream
 
 Return an MediaStream from given id
 
 Note: if stream is sent from remote peer, stream.id may not be same as given id
 
-## close()
+## close(): void
 
 Close this communication permanently
 
