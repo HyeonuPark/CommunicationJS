@@ -1,14 +1,14 @@
 {
   "name": "communication",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Utilize WebRTC PeerConnection API",
-  "main": "build/index.js",
+  "main": "bin/index.js",
   "scripts": {
     "test": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HyeonuPark/connectionjs.git"
+    "url": "git+https://github.com/HyeonuPark/connectionjs.git"
   },
   "keywords": [
     "webrtc",
@@ -25,8 +25,21 @@
       "hyeonu"
     ]
   },
+  "standard": {
+    "parser": "babel-eslint",
+    "globals": [
+      "describe",
+      "it"
+    ],
+    "ignore": [
+      "node_modules/**",
+      "bin/**",
+      "tmp/**"
+    ]
+  },
   "devDependencies": {
     "babel-core": "^6.1.2",
+    "babel-eslint": "^4.1.4",
     "babel-loader": "^6.0.1",
     "babel-preset-hyeonu": "^0.1.1",
     "css-loader": "^0.22.0",
@@ -41,7 +54,6 @@
     "webpack-dev-server": "^1.12.1"
   },
   "dependencies": {
-    "immutable": "^3.7.5",
-    "uuid": "^2.0.1"
+    "async-messenger": "^1.0.0"
   }
 }

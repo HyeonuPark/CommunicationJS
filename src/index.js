@@ -1,5 +1,5 @@
-import {Connection} from './connection.js'
+import {Communication} from './communication.js'
 
-export default function getConnection (config) {
-  return new Connection(config)
+export default function getCommunication (config) {
+  return new Communication(config)
 }
